@@ -1,71 +1,74 @@
 #include <iostream>
+#include <cmath>
 using namespace std;
-#include <vector>
-// Find the prime factorization of n
-vector<int> prime_factorization(int n) {
-vector<int> factors;
-  for (int i = 2; i * i <= n; i++) {
-    while (n % i == 0) {
-      factors.push_back(i);
-      n /= i;
-    }
-  }
-  if (n > 1) {
-    factors.push_back(n);
-  }
-  return factors;
-}
-// Find the order of a modulo m
-int order(int a, int m) {
-  int r = 1;
-  for (int i = 1; i <= m; i++) {
-    r = (r * a) % m;
-    if (r == 1) {
-      return i;
-    }
-  }
-  return m;
-}
-// Find the primitive roots of n
-  vector<int> primitive_roots(int n) {
-  vector<int> roots;
-  vector<int> factors = prime_factorization(n);
-  // Find the orders of 2 modulo each prime factor
-  vector<int> orders;
-  for (int factor : factors) {
-    orders.push_back(order(2, factor));
-  }
-  // Find the primitive roots
-  for (int a = 2; a < n; a++) {
-    bool is_root = true;
-    for (int r : orders) {
-      int x = 1;
-      for (int i = 1; i <= r; i++) {
-        x = (x * a) % n;
-      }
-      if (x != 1) {
-        is_root = false;
-        break;
-      }
-    }
-    if (is_root) {
-      roots.push_back(a);
-    }
-  }
 
-  return roots;
+int power(int a, int b, int mod) {
+    int ans = 1;
+    a %= mod;
+    while (b > 0) {
+        if (b & 1) ans = (ans * a) % mod;
+        a = (a * a) % mod;
+        b >>= 1;
+    }
+    return ans;
+}
+
+int gcd(int a, int b) {
+    if (b == 0) return a;
+    return gcd(b, a % b);
+}
+
+int prime_factors(int n, int factors[]) {
+    int count = 0;
+    while (n % 2 == 0) {
+        factors[count++] = 2;
+        n /= 2;
+    }
+    for (int i = 3; i * i <= n; i += 2) {
+        while (n % i == 0) {
+            factors[count++] = i;
+            n /= i;
+        }
+    }
+    if (n > 2) factors[count++] = n;
+    return count;
+}
+
+// Function to check if a number is primitive root of a prime
+bool is_primitive(int n, int p, int phi, int factors[], int factor_count) {
+    for (int i = 0; i < factor_count; i++) {
+        if (power(n, phi / factors[i], p) == 1) {
+            return false;
+        }
+    }
+    return true;
+}
+
+void primitive_roots(int p) {
+    int factors[100];
+    int phi = p - 1;
+    int factor_count = prime_factors(phi, factors);
+
+    int roots_count = 0;
+    int roots[100];
+
+    for (int i = 2; i < p; i++) {
+        if (gcd(i, p) == 1 && is_primitive(i, p, phi, factors, factor_count)) {
+            roots[roots_count++] = i;
+        }
+    }
+
+    cout << "Primitive Roots of " << p << " are: ";
+    for (int i = 0; i < roots_count; i++) {
+        cout << roots[i] << " ";
+    }
+    cout << endl;
 }
 
 int main() {
-  int n;
-  cout<<"Enter the number:";
-  cin >> n;
-
-  vector<int> roots = primitive_roots(n);
-  cout <<"The primitive roots of "<< n << " = ";
-  for (int root : roots) {
-    cout<< root << " ";
-  }
-  cout << endl;
-  return 0;
+    int p;
+    cout << "Enter a prime number: ";
+    cin >> p;
+    primitive_roots(p);
+    return 0;
 }
