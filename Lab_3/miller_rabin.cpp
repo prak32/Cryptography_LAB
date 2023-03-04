@@ -1,73 +1,88 @@
-//WAP to implement the Miller-Rabin primality test.
+//1)WAP to implement Miller-Rabin Algorithm.
 #include <iostream>
+#include <cstring>
 #include <cstdlib>
-#include <cmath>
-
+#define ll long long
 using namespace std;
-typedef long long ll;
-
-// Helper function to compute (a * b) % m
-ll mulmod(ll a, ll b, ll m) {
-  ll res = 0;
-  a = a % m;
-  while (b > 0) {
-    if (b % 2 == 1) {
-      res = (res + a) % m;
+ 
+/* 
+ * calculates (a * b) % c taking into account that a * b might overflow 
+ */
+ll mulmod(ll a, ll b, ll mod)
+{
+    ll x = 0,y = a % mod;
+    while (b > 0)
+    {
+        if (b % 2 == 1)
+        {    
+            x = (x + y) % mod;
+        }
+        y = (y * 2) % mod;
+        b /= 2;
     }
-    a = (a * 2) % m;
-    b /= 2;
-  }
-  return res % m;
+    return x % mod;
 }
-
-// Helper function to compute (a ^ b) % m
-ll modulo(ll a, ll b, ll m) {
-  ll res = 1;
-  a = a % m;
-  while (b > 0) {
-    if (b % 2 == 1) {
-      res = mulmod(res, a, m);
+/* 
+ * modular exponentiation
+ */
+ll modulo(ll base, ll exponent, ll mod)
+{
+    ll x = 1;
+    ll y = base;
+    while (exponent > 0)
+    {
+        if (exponent % 2 == 1)
+            x = (x * y) % mod;
+        y = (y * y) % mod;
+        exponent = exponent / 2;
     }
-    a = mulmod(a, a, m);
-    b /= 2;
-  }
-  return res % m;
+    return x % mod;
 }
-
-// Miller-Rabin primality test
-bool isPrime(ll n, int k) {
-  if (n <= 1 || n == 4) return false;
-  if (n <= 3) return true;
-
-  ll d = n - 1;
-  while (d % 2 == 0) {
-    d /= 2;
-  }
-
-  for (int i = 0; i < k; i++) {
-    ll a = rand() % (n - 3) + 2;
-    ll x = modulo(a, d, n);
-    if (x == 1 || x == n - 1) continue;
-    for (int j = 0; j < d - 1; j++) {
-      x = mulmod(x, x, n);
-      if (x == 1) return false;
-      if (x == n - 1) break;
+ 
+/*
+ * Miller-Rabin primality test, iteration signifies the accuracy
+ */
+bool Miller(ll p,int iteration)
+{
+    if (p < 2)
+    {
+        return false;
     }
-    if (x != n - 1) return false;
-  }
-  return true;
+    if (p != 2 && p % 2==0)
+    {
+        return false;
+    }
+    ll s = p - 1;
+    while (s % 2 == 0)
+    {
+        s /= 2;
+    }
+    for (int i = 0; i < iteration; i++)
+    {
+        ll a = rand() % (p - 1) + 1, temp = s;
+        ll mod = modulo(a, temp, p);
+        while (temp != p - 1 && mod != 1 && mod != p - 1)
+        {
+            mod = mulmod(mod, mod, p);
+            temp *= 2;
+        }
+        if (mod != p - 1 && temp % 2 == 0)
+        {
+            return false;
+        }
+    }
+    return true;
 }
-
-int main() {
-  int k = 4; // Number of iterations
-  ll n = 11; // Number to test for primality
-
-  if (isPrime(n, k)) {
-    cout << n << " is prime." << endl;
-  } else {
-    cout << n << " is not prime." << endl;
-  }
-
-  return 0;
+//Main
+int main()
+{
+    int iteration = 5;
+    ll num;
+    cout<<"Enter integer to test primality: ";
+    cin>>num;
+    if (Miller(num, iteration))
+        cout<<num<<" is prime"<<endl;
+    else
+        cout<<num<<" is not prime"<<endl;
+    return 0;
 }
-

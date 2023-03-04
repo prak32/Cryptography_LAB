@@ -1,4 +1,4 @@
-//WAP to implement Euler's Totient function.
+//2.WAP to implement Euler's Totient function.
 #include <iostream>
 using namespace std;
 
@@ -22,7 +22,8 @@ int phi(int n)
 int main()
 {
     int n;
+    cout<<"Enter the number you want:";
     cin >> n;
-    cout <<"Phi("<< n << ")= "<< phi(n) << endl;
+    cout <<"The Euler's Totient function (Phi("<< n << "))= "<< phi(n) << endl;
     return 0;
 }

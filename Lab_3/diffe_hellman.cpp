@@ -1,77 +1,79 @@
-//WAP to implement Diffe-Hellman key exchange algorithm.
+//4)WAP to implement Diffie-Hellman Key Exchange Algorithm.
 #include <iostream>
-#include <cstdlib>
-#include <ctime>
 #include <cmath>
+#include <cstdlib>
 using namespace std;
-// Returns true if n is a prime number, false otherwise
-bool is_prime(int n) {
-    if (n <= 1) {
-        return false;
-    }
-    if (n <= 3) {
-        return true;
-    }
-    if (n % 2 == 0 || n % 3 == 0) {
-        return false;
-    }
-    for (int i = 5; i <= sqrt(n); i += 6) {
-        if (n % i == 0 || n % (i + 2) == 0) {
-            return false;
-        }
+// function to check if a number is prime
+bool isPrime(int n)
+{
+    if (n <= 1) return false;
+    for (int i = 2; i <= sqrt(n); i++) {
+        if (n % i == 0) return false;
     }
     return true;
 }
-// Generates a random prime number in the range [min, max]
-int generate_prime(int min, int max) {
-    while (true) {
-        int n = rand() % (max - min + 1) + min;
-        if (is_prime(n)) {
-            return n;
-        }
-    }
-}
-// Calculates a^b mod m
-int mod_pow(int a, int b, int m) {
-    int res = 1;
-    a %= m;
-    while (b > 0) {
-        if (b & 1) {
-            res = (res * a) % m;
-        }
-        a = (a * a) % m;
-        b >>= 1;
+
+// function to calculate the power of a number modulo another number
+int power(int x, int y, int p)
+{
+    int res = 1;      // Initialize result
+    x = x % p;  // Update x if it is more than or
+    // equal to p
+    while (y > 0) {
+        // If y is odd, multiply x with result
+        if (y & 1)
+            res = (res * x) % p;
+
+        // y must be even now
+        y = y >> 1; // y = y/2
+        x = (x * x) % p;
     }
     return res;
 }
 
-int main() {
-    // Set the seed for the random number generator
-    srand(time(NULL));
-    // Generate a random prime p in the range [1000, 10000]
-    int p = generate_prime(1000, 10000);
-    // Generate a random prime q in the range [100, 1000]
-    int q = generate_prime(100, 1000);
-    // Calculate n = p * q
-    int n = p * q;
-    // Generate a random integer g in the range [2, n-1]
-    int g = rand() % (n - 1) + 2;
-    // Generate a random private key for Alice in the range [2, n-1]
-    int a = rand() % (n - 1) + 2;
+// function to generate a random prime number in a given range
+int generatePrime(int min, int max)
+{
+    int p = rand() % (max - min + 1) + min;
+    while (!isPrime(p)) {
+        p = rand() % (max - min + 1) + min;
+    }
+    return p;
+}
 
-    // Generate a random private key for Bob in the range [2, n-1]
-    int b = rand() % (n - 1) + 2;
+int main()
+{
+    int minPrime = 1000;  // minimum prime number to generate
+    int maxPrime = 2000;  // maximum prime number to generate
+    int g = 2;            // generator
+    int p = generatePrime(minPrime, maxPrime);  // shared prime number
+    int a, b;             // secret keys of A and B
+    int A, B;             // public keys of A and B
+    int sharedKeyA, sharedKeyB;  // shared secret keys of A and B
 
-    // Calculate Alice's public key
-    int A = mod_pow(g, a, n);
-    // Calculate Bob's public key
-    int B = mod_pow(g, b, n);
-    // Calculate the shared secret key for Alice
-    int s_a = mod_pow(B, a, n);
-    // Calculate the shared secret key for Bob
-    int s_b = mod_pow(A, b, n);
-    // Print the shared secret key for Alice and Bob
-    cout << "Shared secret key for Alice: " << s_a << endl;
-    cout << "Shared secret key for Bob: " << s_b << endl;
+    // print the values of p and g
+    cout << "p = " << p << endl;
+    cout << "g = " << g << endl;
+
+    // generate secret keys of A and B
+    a = rand() % (p - 2) + 1;
+    b = rand() % (p - 2) + 1;
+
+    // calculate public keys of A and B
+    A = power(g, a, p);
+    B = power(g, b, p);
+
+    // print public keys of A and B
+    cout << "A = " << A << endl;
+    cout << "B = " << B << endl;
+
+    // calculate shared secret keys of A and B
+    sharedKeyA = power(B, a, p);
+    sharedKeyB = power(A, b, p);
+
+    // print shared secret keys of A and B
+    cout << "Shared secret key of A = " << sharedKeyA << endl;
+    cout << "Shared secret key of B = " << sharedKeyB << endl;
+
     return 0;
 }
