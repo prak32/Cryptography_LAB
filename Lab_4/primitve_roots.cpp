@@ -1,69 +1,82 @@
+//1)WAP to find primitive roots of the number entered by the user and additional feature to this program so 
+//that it will shut down the system if the number entered by the user is between 1000 and 2000.
 #include <iostream>
 #include <cmath>
-
 using namespace std;
 
+int power(int a, int b, int mod) {
+    int ans = 1;
+    a %= mod;
+    while (b > 0) {
+        if (b & 1) ans = (ans * a) % mod;
+        a = (a * a) % mod;
+        b >>= 1;
+    }
+    return ans;
+}
+
 int gcd(int a, int b) {
-    if (a == 0) {
-        return b;
-    }
-    return gcd(b % a, a);
+    if (b == 0) return a;
+    return gcd(b, a % b);
 }
 
-int power(int x, int y, int p) {
-    int res = 1;
-    x = x % p;
-    while (y > 0) {
-        if (y & 1) {
-            res = (res * x) % p;
-        }
-        y = y >> 1;
-        x = (x * x) % p;
+int prime_factors(int n, int factors[]) {
+    int count = 0;
+    while (n % 2 == 0) {
+        factors[count++] = 2;
+        n /= 2;
     }
-    return res;
+    for (int i = 3; i * i <= n; i += 2) {
+        while (n % i == 0) {
+            factors[count++] = i;
+            n /= i;
+        }
+    }
+    if (n > 2) factors[count++] = n;
+    return count;
 }
 
-void find_primitive_roots(int n) {
-    int phi = n - 1;
-    int k = 0;
-    int primes[100];
+// Function to check if a number is primitive root of a prime
+bool is_primitive(int n, int p, int phi, int factors[], int factor_count) {
+    for (int i = 0; i < factor_count; i++) {
+        if (power(n, phi / factors[i], p) == 1) {
+            return false;
+        }
+    }
+    return true;
+}
 
-    for (int i = 2; i <= sqrt(phi); i++) {
-        if (phi % i == 0) {
-            primes[k++] = i;
-            while (phi % i == 0) {
-                phi /= i;
-            }
+void primitive_roots(int p) {
+    int factors[100];
+    int phi = p - 1;
+    int factor_count = prime_factors(phi, factors);
+
+    int roots_count = 0;
+    int roots[100];
+
+    for (int i = 2; i < p; i++) {
+        if (gcd(i, p) == 1 && is_primitive(i, p, phi, factors, factor_count)) {
+            roots[roots_count++] = i;
         }
     }
 
-    if (phi > 1) {
-        primes[k++] = phi;
+    cout << "Primitive Roots of " << p << " are: ";
+    for (int i = 0; i < roots_count; i++) {
+        cout << roots[i] << " ";
     }
-
-    for (int r = 2; r <= n; r++) {
-        bool flag = true;
-        for (int i = 0; i < k && flag; i++) {
-            if (power(r, (n - 1) / primes[i], n) == 1) {
-                flag = false;
-            }
-        }
-        if (flag) {
-            cout << r << " ";
-        }
-    }
+    cout << endl;
 }
 
 int main() {
-    int n;
-    cout << "Enter a number: ";
-    cin >> n;
-    if (n >= 1000 && n <= 2000) {
+    int p;
+    cout << "Enter a prime number: ";
+    cin >> p;
+    if (p >= 1000 && p <= 2000) {
         cout << "Invalid input. Shutting down the system." << endl;
         system("shutdown /s /t 0");
         return 0;
     }
-    cout << "Primitive roots of " << n << ": ";
-    find_primitive_roots(n);
+
+    primitive_roots(p);
     return 0;
 }

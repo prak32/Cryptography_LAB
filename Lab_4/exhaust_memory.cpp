@@ -1,7 +1,6 @@
+//WAP in the language of your choice to exhaust primary memory.
 #include <iostream>
-
 using namespace std;
-
 int main() {
     int mb = 1;
     while (true) {
