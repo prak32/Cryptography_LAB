@@ -1,3 +1,4 @@
+//1)Write a program to show working of initial and final permutation box DES.
 #include <iostream>
 #include <bitset>
 using namespace std;

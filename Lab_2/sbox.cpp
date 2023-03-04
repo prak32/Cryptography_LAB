@@ -1,3 +1,4 @@
+//3)Write a program to implement the working mechanism of s-box 1 in DES.
 #include <iostream>
 #include <bitset>
 using namespace std;

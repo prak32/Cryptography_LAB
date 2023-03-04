@@ -1,3 +1,4 @@
+//4)Write  a program to demonstrate the key generation process in DES.
 #include <bits/stdc++.h>
 using namespace std;
 //Function to left rotate n by d bits
